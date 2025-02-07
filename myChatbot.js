@@ -6,7 +6,7 @@ function SendMessage() {
   
     console.log("User Input:", message);  // ✅ Check what the user typed
   
-    var systemContent = `You are a helpful AI assistant. Answer the user's question directly without repeating greetings.`;
+    var systemContent = `You are an intelligent AI assistant. Respond to user queries based on the input provided.`;
     var userContent = `User: ${message}`;
   
     apiKey = `Bearer ${apiKey}`;
