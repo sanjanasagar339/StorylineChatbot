@@ -1,27 +1,12 @@
-// Function to check if a script is already included
-function scriptExists(url) {
-    return document.querySelector(`script[src="${url}"]`) !== null;
-  }
-  
-  // Function to load an external script if it's not already present
-  function includeScript(url) {
-    if (!scriptExists(url)) {
-      const scriptTag = document.createElement("script");
-      scriptTag.src = url;
-      scriptTag.async = true;
-      document.head.appendChild(scriptTag);
-    }
-  }
-  
-  // Function to send user messages to OpenAI API
-  function SendMessage() {
+function SendMessage() {
     var player = GetPlayer();
-    var message = player.GetVar("message");
-    var chatHistory = player.GetVar("chatHistory");
+    var message = player.GetVar("message");  // User's input
     var role = player.GetVar("role");
     var apiKey = player.GetVar("apiKey");
   
-    var systemContent = `Act as a ${role} Assistant. Provide concise responses within 500 characters.`;
+    console.log("User Input:", message);  // ✅ Check what the user typed
+  
+    var systemContent = `You are a helpful AI assistant. Answer the user's question directly without repeating greetings.`;
     var userContent = `User: ${message}`;
   
     apiKey = `Bearer ${apiKey}`;
@@ -38,22 +23,19 @@ function scriptExists(url) {
   
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4) {
+          console.log("API Response:", xhr.responseText); // ✅ Log API response
+          
           if (xhr.status === 200) {
             var apiResponse = JSON.parse(xhr.responseText);
-            if (
-              apiResponse.choices &&
-              apiResponse.choices[0] &&
-              apiResponse.choices[0].message &&
-              apiResponse.choices[0].message.content
-            ) {
+            
+            if (apiResponse.choices && apiResponse.choices[0] && apiResponse.choices[0].message && apiResponse.choices[0].message.content) {
               var generatedResponse = apiResponse.choices[0].message.content.trim();
+              console.log("Generated Response:", generatedResponse); // ✅ Check AI's response
+              
               player.SetVar("response", generatedResponse);
-              player.SetVar(
-                "chatHistory",
-                `${chatHistory}\nUser: ${message}\nResponse: ${generatedResponse}\n`
-              );
+              player.SetVar("chatHistory", `${chatHistory}\nUser: ${message}\nResponse: ${generatedResponse}\n`);
             } else {
-              player.SetVar("response", `Error: ${JSON.stringify(apiResponse)}`);
+              player.SetVar("response", `Error: Invalid API Response`);
             }
           } else {
             player.SetVar("response", `Error: ${xhr.status} - ${xhr.statusText}`);
@@ -65,14 +47,15 @@ function scriptExists(url) {
         model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: systemContent },
-          { role: "user", content: userContent },
-        ],
+          { role: "user", content: userContent }
+        ]
       });
+  
+      console.log("API Request Data:", data); // ✅ Log API request data
   
       xhr.send(data);
     }
   
     sendMessage();
   }
-
   
